@@ -42,22 +42,26 @@ def match(frame, kp):
     bf = cv2.BFMatcher()
     maximum = None
     for i in kp:
+        if des2 is None:
+            continue
         # p1 = cv2.drawKeypoints(frame, kp2)
-        # p2 = cv2.drawKeypoints(i[1], i[2][0])
         # cv2.imshow('frejm', p1)
         # cv2.imshow('paterno', p2)
         # cv2.waitKey(1)
-        matches_pre = bf.knnMatch(i[2][1], des2, k=2)
-        matches = []
-        for m, n in matches_pre:
-            if m.distance < 0.7 * n.distance:
-                matches.append(n)
+        try:
+            matches_pre = bf.knnMatch(i[2][1], des2, k=2)
+            matches = []
+            for m, n in matches_pre:
+                if m.distance < 0.7 * n.distance:
+                    matches.append(n)
 
-        if maximum is None or maximum[1] < len(matches)/float(len(i[2][1]) + len(kp2)):
-            maximum = (i[0], len(matches)/float(len(i[2][1]) + len(kp2)), matches)
+            if maximum is None or maximum[1] < len(matches)/float(len(i[2][1]) + len(kp2)):
+                maximum = (i[0], len(matches)/float(len(i[2][1]) + len(kp2)), matches)
+        except:
+            pass
 
-    print 'The card is ', maximum[0], 'with cer =', maximum[1]
-    if maximum[1] < 0.05:
+    # print 'The card is ', maximum[0], 'with cer =', maximum[1]
+    if maximum is None or maximum[1] < 0.05:
         return None
     else:
         return maximum[0]
